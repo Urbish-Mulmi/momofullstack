@@ -4,6 +4,8 @@ import userModel from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 // handler function for registerUser
 export const registerUser = async (req, res) => {
   try {
@@ -38,7 +40,12 @@ export const registerUser = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 60 * 60 * 1000,
+    });
 
     return res.status(201).json({
       message: "user signed up",
@@ -89,7 +96,12 @@ export const loginUser = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 60 * 60 * 1000,
+    });
 
     res.status(200).json({
       message:"user log in success",
@@ -111,7 +123,11 @@ export const loginUser = async (req, res) => {
 export const logoutUser =  (req, res) => {
   try { 
    
-    res.clearCookie("token");
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+    });
     res.status(200).json({
       message:"user logged out",
       logoutsuccess:true  ,   
