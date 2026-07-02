@@ -8,10 +8,23 @@ import orderRoutes from "./src/routes/order.routes.js";
 
 const app = express();
 app.use(express.json());
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://momofullstack.vercel.app"
+];
+
 app.use(cors({
-  origin:"http://localhost:5173", // allow requests from this origin
-  credentials:true,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
 }));
+
 // cookieParser middleware used for parsing cookie which has credentials in it which can be used for authentication and authorization purpose.
 app.use(cookieParser());
 
@@ -21,4 +34,3 @@ app.use("/api/foods", foodRoutes);
 app.use("/api/orders", orderRoutes);
 
 export default app;
-
